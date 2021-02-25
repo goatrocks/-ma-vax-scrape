@@ -1,8 +1,11 @@
 Make a .env file with these options to use twilio for your notification
 
 TWILIO_AUTH_TOKEN=
+
 TWILIO_ACCOUNT_SID=
+
 FROM_NUMBER=
+
 TO_NUMBER=
 
 run `pip install -r requirements.txt`

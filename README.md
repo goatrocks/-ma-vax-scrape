@@ -1,8 +1,11 @@
 Make a .env file with these options to use twilio for your notification
 
 TWILIO_AUTH_TOKEN=
+
 TWILIO_ACCOUNT_SID=
+
 FROM_NUMBER=
+
 TO_NUMBER=
 
 run `pip install -r requirements.txt`
@@ -13,4 +16,4 @@ mac users: uncomment the notify section for toasts
 
 run `python scrape.py` 
 
-it will send you an sms
+it will send you an sms if it finds any slots. be fast, have your info saved in autofill using one of those advanced autofill plugins

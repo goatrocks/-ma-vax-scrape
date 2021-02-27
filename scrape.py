@@ -39,28 +39,37 @@ def get_pages(vaxsite, url):
         print("...no slots at all...")
         time.sleep(90)
         return
+    if page.text.find("Your estimated wait time is") != -1:
+        print("...wait list is open...")
+        notify("mass vax", "wait list is open for mass vax. Try waiting...")
+        time.sleep(90)
+        return
+    
     #fetch nav 
     soup = BeautifulSoup(page.content, features="html.parser")
     nav = soup.find('nav', class_='pagy-nav')
-
+    if nav is None:
+        print("couldn't find the nav...? maybe page error")
+        return
     hrefs = get_nav_urls(nav)
     soups = []
-    pages = [page.text]
+    pages = []
   
     for href in hrefs:
         next_page = requests.get(BASE + href)
         soups.append(BeautifulSoup(next_page.content,  features="html.parser"))
         pages.append(next_page.text)
-    soups.append(soup)
+    
     
     print("... searched " + str(len(pages)) + " pages")
+    total_appts = 0
     for pa in pages:
         matches = re.findall(r"Available Appointments\s*:\s*<\/strong>\s*(\d+)", pa)
-        total_appts = sum([int(x) for x in matches])
-        if total_appts > 0:
-            print("FOUND APPOINTMENTS : " +str(total_appts))
-            #notify(vaxsite, "This site has " + str(total_appts) + " appointments! " + url )
-            sms("This site has " + str(total_appts) + " appointments! " + url )
+        total_appts += sum([int(x) for x in matches])
+    if total_appts > 1:
+        print("FOUND APPOINTMENTS : " +str(total_appts))
+        #notify(vaxsite, "This site has " + str(total_appts) + " appointments! " + url )
+        sms("This site has " + str(total_appts) + " appointments! " + url )
             
 def walgreens():
     post_content = '{"serviceId":"99","position":{"latitude":42.4326041,"longitude":-71.0557196},"appointmentAvailability":{"startDateTime":"2021-02-26"},"radius":25}'
@@ -80,12 +89,12 @@ def get_nav_urls(elems):
 
 if __name__ == "__main__":
     while True:
-       # print("Gillette ->> https://www.maimmunizations.org/clinic/search?location=&search_radius=All&q%5Bvenue_search_name_or_venue_name_i_cont%5D=Gillette&q%5Bclinic_date_gteq%5D=&q%5Bvaccinations_name_i_cont%5D=&commit=Search#search_results")
-       # get_pages("Gillette","https://www.maimmunizations.org/clinic/search?location=&search_radius=All&q%5Bvenue_search_name_or_venue_name_i_cont%5D=Gillette&q%5Bclinic_date_gteq%5D=&q%5Bvaccinations_name_i_cont%5D=&commit=Search#search_results")
+        print("Gillette ->> https://www.maimmunizations.org/clinic/search?location=&search_radius=All&q%5Bvenue_search_name_or_venue_name_i_cont%5D=Gillette&q%5Bclinic_date_gteq%5D=&q%5Bvaccinations_name_i_cont%5D=&commit=Search#search_results")
+        get_pages("Gillette","https://www.maimmunizations.org/clinic/search?location=&search_radius=All&q%5Bvenue_search_name_or_venue_name_i_cont%5D=Gillette&q%5Bclinic_date_gteq%5D=&q%5Bvaccinations_name_i_cont%5D=&commit=Search#search_results")
       #  #https://www.maimmunizations.org/clinic/search?location=&search_radius=All&q%5Bvenue_search_name_or_venue_name_i_cont%5D=Fenway&q%5Bclinic_date_gteq%5D=&q%5Bvaccinations_name_i_cont%5D=&commit=Search#search_results
       #  time.sleep(30)
-       # print("Fenway ->> https://www.maimmunizations.org/clinic/search?location=&search_radius=All&q%5Bvenue_search_name_or_venue_name_i_cont%5D=Fenway&q%5Bclinic_date_gteq%5D=&q%5Bvaccinations_name_i_cont%5D=&commit=Search#search_results")
-      #  get_pages("Fenway", "https://www.maimmunizations.org/clinic/search?location=&search_radius=All&q%5Bvenue_search_name_or_venue_name_i_cont%5D=Fenway&q%5Bclinic_date_gteq%5D=&q%5Bvaccinations_name_i_cont%5D=&commit=Search#search_results")
+        print("Fenway ->> https://www.maimmunizations.org/clinic/search?location=&search_radius=All&q%5Bvenue_search_name_or_venue_name_i_cont%5D=Fenway&q%5Bclinic_date_gteq%5D=&q%5Bvaccinations_name_i_cont%5D=&commit=Search#search_results")
+        get_pages("Fenway", "https://www.maimmunizations.org/clinic/search?location=&search_radius=All&q%5Bvenue_search_name_or_venue_name_i_cont%5D=Fenway&q%5Bclinic_date_gteq%5D=&q%5Bvaccinations_name_i_cont%5D=&commit=Search#search_results")
         walgreens()
-        get_pages("ALL", "https://www.maimmunizations.org/clinic/search?location=&search_radius=All&q%5Bvenue_search_name_or_venue_name_i_cont%5D=&q%5Bclinic_date_gteq%5D=&q%5Bvaccinations_name_i_cont%5D=&commit=Search#search_results")
+        #get_pages("ALL", "https://www.maimmunizations.org/clinic/search?location=&search_radius=All&q%5Bvenue_search_name_or_venue_name_i_cont%5D=&q%5Bclinic_date_gteq%5D=&q%5Bvaccinations_name_i_cont%5D=&commit=Search#search_results")
         time.sleep(60)
